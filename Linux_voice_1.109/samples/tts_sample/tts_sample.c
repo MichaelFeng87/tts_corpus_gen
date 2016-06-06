@@ -30,11 +30,11 @@ typedef struct _wave_pcm_hdr
 	short int       bits_per_sample;        // = 量化比特数: 8 | 16
 
 	char            data[4];                // = "data";
-	int		data_size;              // = 纯数据长度 : FileSize - 44 
+	int		data_size;              // = 纯数据长度 : FileSize - 44
 } wave_pcm_hdr;
 
 /* 默认wav音频头部数据 */
-wave_pcm_hdr default_wav_hdr = 
+wave_pcm_hdr default_wav_hdr =
 {
 	{ 'R', 'I', 'F', 'F' },
 	0,
@@ -48,7 +48,7 @@ wave_pcm_hdr default_wav_hdr =
 	2,
 	16,
 	{'d', 'a', 't', 'a'},
-	0  
+	0
 };
 /* 文本合成 */
 int text_to_speech(const char* src_text, const char* des_path, const char* params)
@@ -89,7 +89,7 @@ int text_to_speech(const char* src_text, const char* des_path, const char* param
 	}
 	printf("正在合成 ...\n");
 	fwrite(&wav_hdr, sizeof(wav_hdr) ,1, fp); //添加wav音频头，使用采样率为16000
-	while (1) 
+	while (1)
 	{
 		/* 获取合成音频 */
 		const void* data = QTTSAudioGet(sessionID, &audio_len, &synth_status, &ret);
@@ -115,7 +115,7 @@ int text_to_speech(const char* src_text, const char* des_path, const char* param
 	}
 	/* 修正wav文件头数据的大小 */
 	wav_hdr.size_8 += wav_hdr.data_size + (sizeof(wav_hdr) - 8);
-	
+
 	/* 将修正过的数据写回文件头部,音频文件为wav格式 */
 	fseek(fp, 4, 0);
 	fwrite(&wav_hdr.size_8,sizeof(wav_hdr.size_8), 1, fp); //写入size_8的值
@@ -136,9 +136,10 @@ int text_to_speech(const char* src_text, const char* des_path, const char* param
 int main(int argc, char* argv[])
 {
 	int         ret                  = MSP_SUCCESS;
-	const char* login_params         = "appid = 574e69b2, work_dir = .";//登录参数,appid与msc库绑定,请勿随意改动
-	
-	
+
+	//const char* login_params         = "appid = 574e69b2, work_dir = .";//登录参数,appid与msc库绑定,请勿随意改动
+
+
 	/*
 	* rdn:           合成音频数字发音方式
 	* volume:        合成音频的音量
@@ -154,6 +155,7 @@ int main(int argc, char* argv[])
 	// const char* filename             = "tts_sample.wav"; //合成的语音文件名称
 	// const char* text                 = "亲爱的用户，您好，这是一个语音合成示例，感谢您对科大讯飞语音技术的支持！科大讯飞是亚太地区最大的语音上市公司，股票代码：002230"; //合成文本
 
+	char login_params[1024];
 	char session_begin_params[1024];
 	char filename[512];
 	char text[4096];
@@ -162,18 +164,21 @@ int main(int argc, char* argv[])
 	for (i = 0; i < argc; i++) {
 		printf("%s\n", argv[i]);
 	}
-	
-	if (argc<7) {
-		printf("usage: THE_CMD speaker speed volume pitch filename \"text\"\n");
+
+	if (argc<8) {
+		printf("usage: THE_CMD appid speaker speed volume pitch filename \"text\"\n");
 		return 1;
 	}
-	
-	sprintf(session_begin_params, "voice_name = %s, text_encoding = UTF8, sample_rate = 16000, speed = %s, volume = %s, pitch = %s, rdn = 2", argv[1], argv[2], argv[3], argv[4]);
-	
-	sprintf(filename, "%s", argv[5]);
-	
-	sprintf(text, "%s", argv[6]);
-	
+
+	sprintf(login_params, "appid = %s, work_dir = .", argv[1]);
+
+	sprintf(session_begin_params, "voice_name = %s, text_encoding = UTF8, sample_rate = 16000, speed = %s, volume = %s, pitch = %s, rdn = 2", argv[2], argv[3], argv[4], argv[5]);
+
+	sprintf(filename, "%s", argv[6]);
+
+	sprintf(text, "%s", argv[7]);
+
+	printf("login     %s\n", login_params);
 	printf("params    %s\n", session_begin_params);
 	printf("filename  %s\n", filename);
 	printf("text      %s\n", text);
@@ -185,7 +190,7 @@ int main(int argc, char* argv[])
 		printf("MSPLogin failed, error code: %d.\n", ret);
 		goto exit ;//登录失败，退出登录
 	}
-	
+
 	/* 文本合成 */
 	printf("开始合成 ...\n");
 	ret = text_to_speech(text, filename, session_begin_params);
@@ -196,9 +201,8 @@ int main(int argc, char* argv[])
 	printf("合成完毕\n");
 
 exit:
-	
+
 	MSPLogout(); //退出登录
 
 	return 0;
 }
-
