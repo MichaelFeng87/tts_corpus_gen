@@ -1,3 +1,6 @@
 Linux_voice_1.109/bin/TTS_CORPUS_A
 Linux_voice_1.109/bin/*.wav
 Linux_voice_1.109/bin/msc/*.log
+Linux_voice_1.109/bin/CA_wav/*
+*.logcache
+

@@ -7,8 +7,8 @@ cnt=0
 cat $2 | while read line
 do 
     #echo $line
-    
-    fn=$3_$cnt.wav
+    printf -v cc '%03d' $cnt
+    fn=$3_$cc.wav
     ./gen_per_line.sh $1 "$line"  $fn
 
 
